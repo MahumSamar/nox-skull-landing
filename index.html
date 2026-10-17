@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NOX — Tap Freely. Coins Turn Cash. Shops Say Yes.</title>
+<meta name="description" content="NOX is a worldwide crypto rail. Tap, send, and shift your coins over borders — in an instant." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FF6A1A'/%3E%3Cpath d='M7 9l3.6 13 3.4-9 2 5 2-5 3.4 9L25 9' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --orange:#FF6A1A;
+    --ember:#FF8A3D;
+    --orange-deep:#F25A0C;
+    --cream:#FBF6F1;
+    --ink:#1E1E22;
+    --muted:#77716B;
+    --line:rgba(30,30,34,.08);
+    --white:#fff;
+    --radius:28px;
+    --display:"Plus Jakarta Sans",system-ui,sans-serif;
+    --body:"Inter",system-ui,sans-serif;
+    --pad:clamp(16px,4.5vw,64px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{background:var(--white);color:var(--ink);font-family:var(--body);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+  :focus-visible{outline:2px solid var(--orange);outline-offset:3px;border-radius:8px}
+
+  /* ---------- NAV ---------- */
+  .nav{position:fixed;inset:0 0 auto 0;z-index:50;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 var(--pad);background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-left{display:flex;align-items:center;gap:44px}
+  .logo{width:34px;height:34px;border-radius:7px;background:var(--orange);display:grid;place-items:center;box-shadow:0 6px 18px -6px rgba(255,106,26,.7)}
+  .nav-links{display:flex;gap:30px;font-size:14px;color:#5d5852}
+  .nav-links a{position:relative;display:flex;align-items:center;gap:6px;padding:6px 0;transition:color .2s}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-links a.active{color:var(--ink);font-weight:500}
+  .nav-links a.active::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:2px;border-radius:2px;background:var(--orange)}
+  .btn-cta{white-space:nowrap;display:inline-flex;align-items:center;gap:14px;height:44px;padding:0 26px 0 6px;border-radius:999px;background:linear-gradient(180deg,var(--ember),var(--orange-deep));color:#fff;font-weight:600;font-size:15px;box-shadow:0 10px 26px -10px rgba(255,106,26,.85), inset 0 1px 0 rgba(255,255,255,.35);transition:transform .25s, box-shadow .25s}
+  .btn-cta:hover{transform:translateY(-1px);box-shadow:0 16px 32px -12px rgba(255,106,26,.95), inset 0 1px 0 rgba(255,255,255,.35)}
+  .btn-cta .dot{width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center;color:var(--orange);transition:transform .3s}
+  .btn-cta:hover .dot{transform:rotate(-45deg)}
+  .burger{display:none;width:42px;height:42px;border-radius:12px;border:1px solid var(--line);place-items:center}
+
+  /* ---------- 3D CANVAS ---------- */
+  #skull{position:fixed;inset:0;width:100vw;height:100vh;z-index:5;pointer-events:none}
+  #skullFallback{position:fixed;z-index:5;pointer-events:none;display:none;object-fit:contain;filter:drop-shadow(0 30px 40px rgba(255,106,26,.25))}
+
+  /* ---------- HERO ---------- */
+  .hero-wrap{position:relative}
+  .hero{position:relative;height:100vh;height:100svh;padding:72px 0 0}
+  .hero-frame{position:relative;height:100%;overflow:hidden;background:var(--cream);will-change:clip-path}
+  .hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center bottom}
+  .hero-glow{position:absolute;inset:0;background:radial-gradient(40% 45% at 50% 42%,rgba(255,255,255,.75),transparent 70%);pointer-events:none}
+  .hero-inner{position:relative;z-index:6;height:100%;padding:0 var(--pad);will-change:transform,opacity}
+  .hero-copy{position:absolute;left:var(--pad);top:clamp(40px,8vh,92px);max-width:560px}
+  .tag{display:flex;align-items:center;gap:14px;font-size:13px;color:var(--muted);margin-bottom:22px}
+  .tag b{font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:-.04em;color:var(--ink)}
+  .tag i{width:1px;height:16px;background:rgba(30,30,34,.25)}
+  h1{font-family:var(--display);font-weight:600;letter-spacing:-.045em;line-height:.98;font-size:clamp(40px,4.2vw,76px)}
+  h1 span{display:block;white-space:nowrap;color:var(--ink);transition:color .6s ease, opacity .6s ease}
+  h1 span.on{color:var(--orange)}
+  .hero-sub{margin-top:26px;font-size:15px;line-height:1.55;color:#6d6761;max-width:300px}
+  .hero-actions{margin-top:28px;display:flex;align-items:center;gap:18px}
+  .joined{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+  .avatars{display:flex}
+  .avatars span{width:26px;height:26px;border-radius:50%;border:2px solid var(--cream);margin-left:-8px;background:linear-gradient(135deg,#ffd2b3,#ff7a2e)}
+  .avatars span:first-child{margin-left:0;background:linear-gradient(135deg,#2a2a2e,#555)}
+  .avatars span:nth-child(3){background:linear-gradient(135deg,#fff,#ffcfa9)}
+  .joined b{color:var(--ink);font-weight:600}
+
+  #heroSlot{position:absolute;left:54%;top:46%;width:min(32vw,440px);aspect-ratio:1;transform:translate(-50%,-50%)}
+
+  .glass-stack{position:absolute;right:var(--pad);top:16%;display:flex;flex-direction:column;gap:16px;width:min(22vw,270px)}
+  .glass{border-radius:18px;padding:18px 20px;background:rgba(255,255,255,.38);border:1px solid rgba(255,255,255,.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 20px 40px -24px rgba(120,60,20,.25)}
+  .glass small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#a29a92}
+  .glass strong{display:block;margin-top:6px;font-family:var(--display);font-size:22px;font-weight:700;letter-spacing:-.03em}
+  .glass strong em{font-style:normal;color:var(--orange)}
+  .glass .bar{margin-top:12px;height:4px;border-radius:4px;background:rgba(30,30,34,.08);overflow:hidden}
+  .glass .bar i{display:block;height:100%;width:68%;background:linear-gradient(90deg,var(--ember),var(--orange));border-radius:4px;animation:bar 3.6s ease-in-out infinite alternate}
+  @keyframes bar{from{width:38%}to{width:86%}}
+
+  .pedestal{position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);width:min(30vw,380px);height:min(17vh,150px);border-radius:22px 22px 0 0;background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,247,240,.78));border:1px solid rgba(255,255,255,.95);box-shadow:0 -8px 60px -10px rgba(255,140,60,.35), inset 0 2px 0 #fff, inset 0 -30px 40px -20px rgba(255,140,60,.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#a59c94}
+  .pedestal::before{content:"";position:absolute;left:8%;right:8%;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--orange),transparent);opacity:.8}
+  .pedestal b{font-family:var(--display);font-weight:800;letter-spacing:-.04em;font-size:18px;color:#8f877f}
+  .pedestal small{font-size:12px;letter-spacing:.06em}
+  .pedestal .chev{width:34px;height:34px;border-radius:10px;border:1px solid rgba(30,30,34,.12);display:grid;place-items:center;color:var(--orange);animation:nudge 1.8s ease-in-out infinite}
+  @keyframes nudge{50%{transform:translateY(4px)}}
+
+  /* ---------- STEPS ---------- */
+  .steps{position:relative;padding:56px var(--pad) 100px;background:#fff}
+  .steps-head{text-align:center;position:relative;z-index:6}
+  .pill{display:inline-block;padding:6px 14px;border-radius:999px;background:#FFF0E6;color:var(--orange-deep);font-size:12px;font-weight:500}
+  h2{font-family:var(--display);font-weight:600;letter-spacing:-.04em;line-height:1.05;font-size:clamp(32px,4vw,54px);margin-top:16px}
+  h2 em{font-style:normal;color:var(--orange)}
+  .steps-grid{margin:40px auto 0;max-width:1180px;display:grid;grid-template-columns:1fr minmax(300px,380px) 1fr;gap:clamp(24px,4vw,64px);align-items:center}
+  .steps-left{position:relative}
+  .steps-left small{font-size:11px;letter-spacing:.16em;color:#c2bbb4}
+  .big3{font-family:var(--display);font-weight:600;letter-spacing:-.05em;font-size:clamp(70px,10vw,150px);line-height:1;margin-top:18px;white-space:nowrap;background:linear-gradient(90deg,#FFC9A6 0%,#FFE3D0 55%,rgba(255,255,255,0) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .step-card{position:relative;border-radius:26px;background:#fff;padding:16px;box-shadow:0 30px 60px -30px rgba(120,60,20,.25), 0 0 0 1px var(--line)}
+  .slot-bg{position:relative;aspect-ratio:1/0.86;border-radius:18px;background:radial-gradient(70% 70% at 50% 40%,#FFF4EC 0%,#FFE6D4 100%);overflow:hidden}
+  .slot-bg::after{content:"";position:absolute;left:50%;bottom:10%;width:46%;height:8%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(255,106,26,.28),transparent)}
+  #cardSlot{position:absolute;inset:6% 12% 4%}
+  .card-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:18px 6px 4px}
+  .card-foot p{font-size:13px;line-height:1.5;color:#7a746e;max-width:230px;min-height:58px;transition:opacity .35s}
+  .round-btn{flex:none;width:48px;height:48px;border-radius:50%;background:linear-gradient(180deg,var(--ember),var(--orange-deep));color:#fff;display:grid;place-items:center;box-shadow:0 10px 22px -8px rgba(255,106,26,.9);transition:transform .25s}
+  .round-btn:hover{transform:rotate(45deg)}
+  .step-list{list-style:none;display:flex;flex-direction:column}
+  .step-list li button{width:100%;text-align:left;padding:18px 0 16px;position:relative;border-bottom:1px solid var(--line)}
+  .step-list h3{font-family:var(--display);font-size:clamp(17px,1.6vw,21px);font-weight:600;letter-spacing:-.02em;color:#b7b0a9;transition:color .3s}
+  .step-list span{display:inline-flex;gap:4px;margin-top:6px;font-size:12px;color:#a8a19a}
+  .step-list i{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--ink)}
+  .step-list li.on h3{color:var(--ink)}
+  .step-list li.on i{animation:fill var(--dur,4s) linear forwards}
+  @keyframes fill{to{width:100%}}
+  .steps-right .btn-cta{margin-top:40px}
+
+  /* ---------- STATS (orange) ---------- */
+  .stats-wrap{position:relative;z-index:10;height:340vh;background:var(--orange)}
+  .stats{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:radial-gradient(60% 60% at 50% 50%,#FF7B30 0%,var(--orange) 55%,#F25A0C 100%)}
+  .cards{position:absolute;inset:0}
+  .qcard{position:absolute;left:50%;top:50%;width:var(--cw);aspect-ratio:1.58;margin:calc(var(--cw) / -3.16) 0 0 calc(var(--cw) / -2);border-radius:calc(var(--cw) * .065);background-size:cover;background-position:center;box-shadow:0 20px 40px -18px rgba(120,30,0,.45), inset 0 0 0 1px rgba(255,255,255,.35);color:#fff;will-change:transform,opacity;opacity:0}
+  .qcard b{position:absolute;left:9%;top:44%;font-family:var(--display);font-weight:800;letter-spacing:-.04em;font-size:calc(var(--cw) * .12)}
+  .qcard small{position:absolute;left:9%;top:62%;font-size:calc(var(--cw) * .04);opacity:.85}
+  .qcard u{position:absolute;right:8%;bottom:10%;text-decoration:none;font-size:calc(var(--cw) * .04);opacity:.85;letter-spacing:.05em}
+  .dial{position:absolute;left:50%;top:50%;width:min(44vw,240px);aspect-ratio:1;transform:translate(-50%,-50%);z-index:2}
+  .dial svg{position:absolute;inset:0;overflow:visible}
+  .dial-core{position:absolute;inset:14%;border-radius:50%;background:linear-gradient(180deg,#FFC59C 0%,#FF8E48 55%,#FF6A1A 100%);box-shadow:0 30px 60px -20px rgba(140,40,0,.55), inset 0 2px 0 rgba(255,255,255,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center}
+  .dial-core strong{font-family:var(--display);font-weight:600;font-size:clamp(36px,5vw,58px);letter-spacing:-.04em;line-height:1}
+  .dial-core span{margin-top:6px;font-size:13px;opacity:.9}
+  .stats-caption{position:absolute;left:50%;bottom:6vh;transform:translateX(-50%);white-space:nowrap;padding:10px 18px;border-radius:999px;background:rgba(150,45,0,.35);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:11px!important;text-align:center;color:rgba(255,255,255,.85);font-size:13px;letter-spacing:.14em;text-transform:uppercase;z-index:2}
+
+  /* ---------- CTA / FOOTER ---------- */
+  .cta{position:relative;z-index:10;background:#fff;padding:120px var(--pad);text-align:center}
+  .cta p{margin:18px auto 34px;max-width:440px;color:var(--muted);line-height:1.6}
+  footer{position:relative;z-index:10;background:#fff;border-top:1px solid var(--line);padding:28px var(--pad);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:1180px) and (min-width:861px){
+    #heroSlot{left:68%;width:min(38vw,400px)}
+  }
+  @media (max-width:1024px){
+    .glass-stack{display:none}
+    .steps-grid{grid-template-columns:1fr;max-width:440px}
+    .steps-left{text-align:center}
+    .big3{background:linear-gradient(90deg,#FFC9A6,#FFE3D0);-webkit-background-clip:text;background-clip:text}
+    .nav-links{gap:20px}
+  }
+  @media (max-width:860px){
+    .nav-links{display:none}
+    .burger{display:grid}
+    .nav .btn-cta{display:none}
+    .hero-copy{left:var(--pad);right:var(--pad);top:28px;max-width:none}
+    .tag{margin-bottom:14px}
+    h1{font-size:clamp(36px,10.5vw,56px)}
+    .hero-sub{margin-top:14px;font-size:14px;max-width:none}
+    .hero-actions{display:none}
+    #heroSlot{top:auto;bottom:17%;width:min(64vw,340px);transform:translate(-50%,0)}
+    .pedestal{width:64vw;height:12vh}
+    .steps{padding:44px var(--pad) 80px}
+    .steps-grid{grid-template-columns:1fr;max-width:440px;margin-top:40px}
+    .steps-left{text-align:center}
+    .big3{font-size:clamp(64px,18vw,110px);background:linear-gradient(90deg,#FFC9A6,#FFE3D0);-webkit-background-clip:text;background-clip:text}
+    .steps-right .btn-cta{margin-top:28px}
+  }
+  @media (max-height:640px) and (min-width:861px){ h1{font-size:clamp(36px,4.4vw,60px)} }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  }
+</style>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="nav-left">
+    <a href="#" class="logo" aria-label="NOX home">
+      <svg width="20" height="18" viewBox="0 0 20 18" fill="none" aria-hidden="true"><path d="M1.5 2.5l3.6 13 3.4-9 1.5 4.6 1.5-4.6 3.4 9 3.6-13" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#" class="active">Main</a>
+      <a href="#steps">Products <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5l3 3 3-3" stroke="currentColor" fill="none" stroke-width="1.4"/></svg></a>
+      <a href="#stats">NFT Collections <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5l3 3 3-3" stroke="currentColor" fill="none" stroke-width="1.4"/></svg></a>
+      <a href="#contact">Support</a>
+    </nav>
+  </div>
+  <a href="#contact" class="btn-cta"><span class="dot"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Sign up now</a>
+  <button class="burger" aria-label="Show menu"><svg width="18" height="12" viewBox="0 0 18 12"><path d="M1 1h16M1 6h16M1 11h16" stroke="#1E1E22" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+</header>
+
+<canvas id="skull" aria-hidden="true"></canvas>
+<img id="skullFallback" alt="" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261017_135152_4cc1db12-c8c5-4f86-bfca-0b4c42d35580.png" />
+
+<main>
+  <!-- HERO -->
+  <section class="hero-wrap" id="top">
+    <div class="hero">
+      <div class="hero-frame" id="heroFrame">
+        <video class="hero-bg" autoplay muted loop playsinline preload="auto"
+          poster="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261017_134140_717d0417-b639-40c2-8861-d4a149d9bd9a.png"
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261017_134417_910f8c44-f302-4c26-85cf-eb44b04e6b13.mp4"></video>
+        <div class="hero-glow"></div>
+
+        <div class="hero-inner" id="heroInner">
+          <div class="hero-copy">
+            <div class="tag"><b>NOX</b><i></i>A worldwide crypto rail.</div>
+            <h1 id="headline"><span>Tap Freely.</span><span class="on">Coins Turn Cash.</span><span>Shops Say Yes.</span></h1>
+            <p class="hero-sub">Tap, send, and shift your tokens over every border — quick, and worldwide.</p>
+            <div class="hero-actions">
+              <div class="joined"><div class="avatars"><span></span><span></span><span></span></div><span><b>$3.1M+</b> spent this week</span></div>
+            </div>
+          </div>
+
+          <div id="heroSlot"></div>
+
+          <div class="glass-stack" aria-hidden="true">
+            <div class="glass"><small>Cleared in</small><strong><em>0.6s</em> avg</strong><div class="bar"><i></i></div></div>
+            <div class="glass"><small>Retailers</small><strong>140M+ <em>globally.</em></strong></div>
+            <div class="glass"><small>Exchanged today</small><strong>ETH → <em>USD</em></strong></div>
+          </div>
+
+          <a href="#steps" class="pedestal" aria-label="Scroll to uncover">
+            <b>NOX</b>
+            <small>Scroll to uncover</small>
+            <span class="chev"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEPS -->
+  <section class="steps" id="steps">
+    <div class="steps-head">
+      <span class="pill">Why trust NOX?</span>
+      <h2>Built for <em>you</em><br/>who spend <em>boldly.</em></h2>
+    </div>
+    <div class="steps-grid">
+      <div class="steps-left">
+        <small>ALL YOU NEED IS</small>
+        <div class="big3">3 Moves</div>
+      </div>
+
+      <div class="step-card">
+        <div class="slot-bg"><div id="cardSlot"></div></div>
+        <div class="card-foot">
+          <p id="stepDesc">Pair any Web3 wallet in moments and open a single spending pool across all the coins you own.</p>
+          <a href="#contact" class="round-btn" aria-label="Begin today"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M5 13L13 5M6 5h7v7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+
+      <div class="steps-right">
+        <ul class="step-list" id="stepList">
+          <li class="on"><button><h3>Link up your wallet</h3><span>Explore it ↗</span><i></i></button></li>
+          <li><button><h3>Switch on the card</h3><span>Explore it ↗</span><i></i></button></li>
+          <li><button><h3>Pay everywhere</h3><span>Explore it ↗</span><i></i></button></li>
+        </ul>
+        <a href="#contact" class="btn-cta"><span class="dot"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Go for it</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="stats-wrap" id="stats">
+    <div class="stats">
+      <div class="cards" id="cards"></div>
+      <div class="dial">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <circle cx="100" cy="100" r="96" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+          <circle id="ring" cx="100" cy="100" r="96" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="603" stroke-dashoffset="603" transform="rotate(-90 100 100)"/>
+          <circle id="ringDot" cx="100" cy="4" r="5" fill="#fff"/>
+        </svg>
+        <div class="dial-core"><strong id="statNum">100%</strong><span id="statLabel">Worldwide use</span></div>
+      </div>
+      <div class="stats-caption">One wallet. Each token. Every border.</div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" id="contact">
+    <span class="pill">Begin today</span>
+    <h2>Your tokens, <em>welcomed everywhere.</em></h2>
+    <p>Set up a NOX account in moments. Link any wallet, switch on your card, and tap in 160+ nations at the true rate.</p>
+    <a href="#top" class="btn-cta"><span class="dot"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Sign up now</a>
+  </section>
+  <footer><span>© 2026 NOX Finance</span><span>Cookies · Legal · Uptime</span></footer>
+</main>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const GLB_URL  = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261017_134358_5079d4ba-8fe8-46e6-bb93-27dd2c8f67bf.glb';
+const CARD_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261017_134427_cb1a8f47-1b1e-4027-9ef6-7bdcb8f340c1.png';
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp = (v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+const lerp = (a,b,t)=>a+(b-a)*t;
+const ease = t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+
+/* ---------- headline cycle ---------- */
+const lines=[...document.querySelectorAll('#headline span')];
+let li=1;
+if(!reduce) setInterval(()=>{lines[li].classList.remove('on');li=(li+1)%3;lines[li].classList.add('on');},2400);
+
+/* ---------- steps ---------- */
+const STEP_COPY=[
+  'Pair any Web3 wallet in moments and open a single spending pool across all the coins you own.',
+  'Grab a virtual NOX card right away — load it into Apple Pay or Google Pay, or order a metal one.',
+  'Pay at 140M+ retailers. We swap at the instant of checkout, at the true rate, with no added fees.'
+];
+const stepItems=[...document.querySelectorAll('#stepList li')];
+const stepDesc=document.getElementById('stepDesc');
+let step=0, stepTimer;
+function setStep(i){
+  stepItems.forEach((el,k)=>{el.classList.toggle('on',k===i); const bar=el.querySelector('i'); bar.style.animation='none'; void bar.offsetWidth; bar.style.animation='';});
+  stepDesc.style.opacity=0;
+  setTimeout(()=>{stepDesc.textContent=STEP_COPY[i];stepDesc.style.opacity=1;},200);
+
+  step=i;
+  clearTimeout(stepTimer); stepTimer=setTimeout(()=>setStep((step+1)%3),4000);
+}
+stepItems.forEach((el,k)=>el.querySelector('button').addEventListener('click',()=>setStep(k)));
+setStep(0);
+
+/* ---------- stats: spiral cards + dial ---------- */
+const cardsEl=document.getElementById('cards');
+const N=18, cards=[];
+for(let i=0;i<N;i++){
+  const c=document.createElement('div');
+  c.className='qcard';
+  c.style.backgroundImage=`url(${CARD_URL})`;
+  c.innerHTML='<b>NOX</b><small>Tap anywhere. Clear in a moment.</small><u>nox.finance</u>';
+  cardsEl.appendChild(c); cards.push(c);
+}
+const STATS=[['100%','Worldwide use'],['0%','Markups'],['9+','Tokens']];
+const statNum=document.getElementById('statNum'), statLabel=document.getElementById('statLabel');
+const ring=document.getElementById('ring'), ringDot=document.getElementById('ringDot');
+let statIdx=-1;
+function countTo(str){
+  const m=str.match(/(\d+)(.*)/), target=+m[1], suf=m[2]; const t0=performance.now();
+  const tick=now=>{const k=clamp((now-t0)/700); statNum.textContent=Math.round(target*ease(k))+suf; if(k<1) requestAnimationFrame(tick);};
+  requestAnimationFrame(tick);
+}
+const statsWrap=document.getElementById('stats');
+function updateStats(){
+  const r=statsWrap.getBoundingClientRect();
+  const total=r.height-innerHeight;
+  const q=clamp(-r.top/total);
+  const W=innerWidth,H=innerHeight, cw=Math.max(150,Math.min(W*.24,300));
+  cardsEl.style.setProperty('--cw',cw+'px');
+  const maxR=Math.hypot(W,H)*.6;
+  for(let i=0;i<N;i++){
+    const f=i/N;
+    const local=ease(clamp((q*1.25-f*.55)/.38));
+    const ang=f*Math.PI*2*1.15 + q*1.2 + (1-local)*1.8;
+    const rad=lerp(maxR*1.15, (Math.min(W,H)*.32)+f*Math.min(W,H)*.34, local);
+    const x=Math.cos(ang)*rad, y=Math.sin(ang)*rad*.92;
+    const rot=ang*180/Math.PI+90;
+    cards[i].style.transform=`translate(${x}px,${y}px) rotate(${rot}deg)`;
+    cards[i].style.opacity=local;
+  }
+  const seg=q*3, idx=Math.min(2,Math.floor(seg)), sp=reduce?1:clamp(seg-idx);
+  if(idx!==statIdx){statIdx=idx; statLabel.textContent=STATS[idx][1]; countTo(STATS[idx][0]);}
+  const prog=clamp(sp*1.25);
+  ring.style.strokeDashoffset=603*(1-prog);
+  const a=-Math.PI/2+prog*Math.PI*2;
+  ringDot.setAttribute('cx',100+96*Math.cos(a)); ringDot.setAttribute('cy',100+96*Math.sin(a));
+}
+
+/* ---------- hero collapse ---------- */
+const heroFrame=document.getElementById('heroFrame'), heroInner=document.getElementById('heroInner');
+function updateHero(){
+  // hero scrolls away naturally; the frame just rounds off and eases back, so section 2 follows straight on
+  const p=clamp(scrollY/innerHeight);
+  const rad=lerp(0,36,clamp(p*4));
+  heroFrame.style.clipPath=`inset(0 ${p*3}% 0 ${p*3}% round 0 0 ${rad}px ${rad}px)`;
+  heroInner.style.transform=`translateY(${-p*8}vh)`;
+  heroInner.style.opacity=1-clamp((p-.3)/.5);
+}
+
+/* ---------- 3D skull ---------- */
+const canvas=document.getElementById('skull');
+const heroSlot=document.getElementById('heroSlot'), cardSlot=document.getElementById('cardSlot');
+const fallback=document.getElementById('skullFallback');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.NeutralToneMapping;
+renderer.toneMappingExposure=1.05;
+const scene=new THREE.Scene();
+const pmrem=new THREE.PMREMGenerator(renderer);
+scene.environment=pmrem.fromScene(new RoomEnvironment(renderer),.04).texture;
+const camera=new THREE.OrthographicCamera(-1,1,1,-1,-5000,5000);
+camera.position.z=1000;
+
+scene.add(new THREE.HemisphereLight(0xffffff,0xfff1e6,1.1));
+const key=new THREE.DirectionalLight(0xffffff,2.6); key.position.set(-300,500,800); scene.add(key);
+const warm=new THREE.DirectionalLight(0xff8a4a,.9); warm.position.set(200,-500,300); scene.add(warm);
+const rim=new THREE.DirectionalLight(0xffc8a0,1.2); rim.position.set(600,200,-600); scene.add(rim);
+
+const holder=new THREE.Group(); scene.add(holder);
+const pivot=new THREE.Group(); holder.add(pivot);
+let model=null, loaded=false, failed=false;
+
+const NECK_CUT=0.15;                    // hide the bottom 15% (neck stub) so it floats as a head, like the reference
+const uCut={value:-1e9}, uBand={value:0};
+function boostMaterial(mat,rootMatrix){
+  mat.envMapIntensity=1.25;
+  mat.side=THREE.DoubleSide;
+  // make the orange visor, trims and ear rings glow: emission keyed on how orange the albedo is
+  mat.onBeforeCompile=sh=>{
+    sh.uniforms.uCut=uCut; sh.uniforms.uBand=uBand;
+    sh.uniforms.uRoot={value:rootMatrix};
+    sh.vertexShader=sh.vertexShader
+      .replace('#include <common>','#include <common>\nuniform mat4 uRoot; varying float vRootY;')
+      .replace('#include <begin_vertex>','#include <begin_vertex>\nvRootY=(uRoot*vec4(transformed,1.0)).y;');
+    sh.fragmentShader=sh.fragmentShader
+      .replace('#include <common>','#include <common>\nuniform float uCut; uniform float uBand; varying float vRootY;')
+      .replace('#include <clipping_planes_fragment>','#include <clipping_planes_fragment>\nif(vRootY<uCut) discard;')
+      .replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
+      float orangeness = smoothstep(0.12, 0.45, diffuseColor.r - diffuseColor.b) * smoothstep(0.3,0.7,diffuseColor.r);
+      totalEmissiveRadiance += vec3(1.0,0.36,0.08) * orangeness * 0.55;
+      float lum = dot(diffuseColor.rgb, vec3(0.299,0.587,0.114));
+      diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.78,0.75,0.73), (1.0-smoothstep(0.12,0.4,lum))*0.7*(1.0-smoothstep(uCut,uCut+uBand,vRootY)));
+      if(!gl_FrontFacing) diffuseColor.rgb = vec3(0.92,0.86,0.82);`);
+  };
+  mat.needsUpdate=true;
+}
+
+const draco=new DRACOLoader(); draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/libs/draco/gltf/');
+const loader=new GLTFLoader(); loader.setDRACOLoader(draco);
+loader.load(GLB_URL,gltf=>{
+  model=gltf.scene;
+  model.updateMatrixWorld(true);
+  const box=new THREE.Box3().setFromObject(model);
+  const size=box.getSize(new THREE.Vector3()), center=box.getCenter(new THREE.Vector3());
+  uCut.value=box.min.y+size.y*NECK_CUT; uBand.value=size.y*.16;
+  model.traverse(o=>{ if(o.isMesh){ const m=o.material; const rm=o.matrixWorld.clone(); (Array.isArray(m)?m:[m]).forEach(x=>boostMaterial(x,rm));} });
+  center.y+=size.y*NECK_CUT/2;              // re-centre on what stays visible
+  model.position.sub(center);
+  window.__skull={pivot,model,uCut};
+  const s=1/Math.max(size.x,size.y,size.z);
+  pivot.scale.setScalar(s);
+  pivot.add(model);
+  loaded=true;
+},undefined,()=>{failed=true; canvas.style.display='none'; fallback.style.display='block';});
+
+function resize(){
+  const W=innerWidth,H=innerHeight;
+  renderer.setSize(W,H,false);
+  camera.left=-W/2;camera.right=W/2;camera.top=H/2;camera.bottom=-H/2;camera.updateProjectionMatrix();
+}
+addEventListener('resize',resize); resize();
+
+let mx=0,my=0,tmx=0,tmy=0;
+addEventListener('pointermove',e=>{tmx=e.clientX/innerWidth*2-1;tmy=e.clientY/innerHeight*2-1;});
+document.addEventListener('mouseleave',()=>{tmx=0;tmy=0;});
+
+const clock=new THREE.Clock();
+function frame(){
+  const dt=Math.min(clock.getDelta(),.05), t=clock.elapsedTime;
+  updateHero(); updateStats();
+
+  const a=heroSlot.getBoundingClientRect(), b=cardSlot.getBoundingClientRect();
+  // travel progress: from page top until the card slot is centred in the viewport
+  const end=b.top+scrollY+b.height/2-innerHeight/2;
+  const k=ease(clamp(scrollY/Math.max(1,end)));
+  const cx=lerp(a.left+a.width/2,b.left+b.width/2,k);
+  const cy=lerp(a.top+a.height/2,b.top+b.height/2,k);
+  const sz=lerp(Math.min(a.width,a.height),Math.min(b.width,b.height),k);
+
+  const follow=1-Math.exp(-dt*3.5); mx+=(tmx-mx)*follow; my+=(tmy-my)*follow;   // smooth, frame-rate independent
+
+
+  const sway=reduce?0:Math.sin(t*.6)*lerp(.06,.04,k);            // faint idle drift; the cursor drives the real turn
+  const bob=reduce?0:Math.sin(t*1.3)*lerp(10,4,k);
+  holder.position.set(cx-innerWidth/2, innerHeight/2-cy+bob, 0);
+  holder.scale.setScalar(sz*1.02);
+  pivot.rotation.set(-.04+my*.12, sway+mx*lerp(.6,.35,k), -mx*.05);       // head turns left/right to follow the cursor
+
+  const visible=b.bottom>-50 && document.getElementById('stats').getBoundingClientRect().top>0;
+  if(failed){
+    fallback.style.width=fallback.style.height=sz+'px';
+    fallback.style.left=(cx-sz/2)+'px'; fallback.style.top=(cy-sz/2+bob)+'px';
+    fallback.style.transform=`rotate(${sway*4}deg)`;
+  } else if(loaded && visible){ renderer.render(scene,camera); }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
